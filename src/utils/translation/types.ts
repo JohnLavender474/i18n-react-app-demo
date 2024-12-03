@@ -1,2 +1,5 @@
-export type TranslationRecord = Record<string, string>;
-export type Translations = Record<string, TranslationRecord>;
+export type TranslationRecord = {
+    translation: Record<string, string>;
+}
+
+export type Translations = Record<string, TranslationRecord>

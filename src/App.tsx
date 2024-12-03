@@ -1,22 +1,38 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {I18nTranslationService} from "./utils/translation/i18n/I18nTranslationService";
 import {ITranslationService} from "./utils/translation/ITranslationService";
 import {PLURAL_NOTIFICATIONS_KEY, REACT_WELCOME_KEY, SINGLE_NOTIFICATION_KEY} from "./utils/translation/keys";
+import {FR} from "./utils/translation/locales";
 
 const DEBUG_TRANSLATION = true;
 
 function App() {
-    const translationRef = useRef<ITranslationService | null>(null);
+    const [translation, setTranslation] = useState<ITranslationService | null>(null);
 
-    if (!translationRef.current) {
-        translationRef.current = new I18nTranslationService({
-            debug: DEBUG_TRANSLATION,
-        });
+    useEffect(() => {
+        if (translation) {
+            return;
+        }
+
+        const initializeService = async () => {
+            const service = new I18nTranslationService({
+                debug: DEBUG_TRANSLATION,
+                lng: FR
+            });
+            await service.init();
+            return service;
+        };
+
+        initializeService()
+            .then((service: ITranslationService) => setTranslation(service))
+            .catch(console.error);
+    }, []);
+
+    if (!translation) {
+        return <div>Loading...</div>;
     }
-
-    const translation = translationRef.current;
 
     return (
         <div className="App">
