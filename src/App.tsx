@@ -2,17 +2,17 @@ import React, {useEffect, useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {I18nTranslationService} from "./utils/translation/i18n/I18nTranslationService";
-import {ITranslationService} from "./utils/translation/ITranslationService";
 import {PLURAL_NOTIFICATIONS_KEY, REACT_WELCOME_KEY, SINGLE_NOTIFICATION_KEY} from "./utils/translation/keys";
-import {FR} from "./utils/translation/locales";
+import {EN, FR} from "./utils/translation/locales";
 
 const DEBUG_TRANSLATION = true;
 
 function App() {
-    const [translation, setTranslation] = useState<ITranslationService | null>(null);
+    const [translationService, setTranslationService] = useState<I18nTranslationService | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (translation) {
+        if (translationService) {
             return;
         }
 
@@ -22,16 +22,70 @@ function App() {
                 lng: FR
             });
             await service.init();
+            setTranslationService(service);
             return service;
         };
 
+        setLoading(true);
         initializeService()
-            .then((service: ITranslationService) => setTranslation(service))
-            .catch(console.error);
+            .then((service) => {
+                console.log("Service initialized", service);
+                setLoading(false);
+            })
+            .catch((e) => {
+                console.error(e);
+                setLoading(false);
+            });
     }, []);
 
-    if (!translation) {
+    const getCurrentLanguage = (): string | null => {
+        if (!translationService) {
+            return null;
+        }
+
+        return translationService.getCurrentLanguage();
+    }
+
+    const handleLanguageChange = async (lng: string) => {
+        if (!translationService) {
+            console.error("Translation service not initialized");
+            return;
+        }
+
+        setLoading(true);
+        await translationService.changeLanguage(lng);
+        setLoading(false);
+    };
+    const renderChangeLngButtons = () => {
+        const currentLng = getCurrentLanguage();
+        if (!currentLng) {
+            return null;
+        }
+
+        let newLng = "ERROR: NO LANGUAGE SET";
+        let text = "ERROR: NO BUTTON TEXT SET";
+        switch (currentLng) {
+            case EN:
+                newLng = FR;
+                text = "Change to French";
+                break;
+            case FR:
+                newLng = EN;
+                text = "Changez en anglais";
+                break;
+        }
+
+        return (
+            <button onClick={() => handleLanguageChange(newLng)}>{text}</button>
+        )
+    }
+
+    if (loading) {
         return <div>Loading...</div>;
+    }
+
+    if (!translationService) {
+        return <div><h1>Error initializing translation service</h1></div>;
     }
 
     return (
@@ -44,14 +98,17 @@ function App() {
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    {translation.get(REACT_WELCOME_KEY)}
+                    {translationService.get(REACT_WELCOME_KEY)}
                 </a>
                 <p>
-                    {translation.get(SINGLE_NOTIFICATION_KEY)}
+                    {translationService.get(SINGLE_NOTIFICATION_KEY)}
                 </p>
                 <p>
-                    {translation.get(PLURAL_NOTIFICATIONS_KEY, 5)}
+                    {translationService.get(PLURAL_NOTIFICATIONS_KEY, 5)}
                 </p>
+                <div>
+                    {renderChangeLngButtons()}
+                </div>
             </header>
         </div>
     );

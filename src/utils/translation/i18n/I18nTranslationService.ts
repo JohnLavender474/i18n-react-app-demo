@@ -17,6 +17,8 @@ export interface I18nServiceParams {
         escapeValue: boolean;
     };
     debug?: boolean;
+    changeLanguage?: (lng: string) => Promise<void>;
+    onLanguageChange?: (lng: string) => void;
 }
 
 export class I18nTranslationService implements ITranslationService {
@@ -34,6 +36,8 @@ export class I18nTranslationService implements ITranslationService {
                 escapeValue: false
             },
             debug: params.debug ?? false,
+            changeLanguage: params.changeLanguage,
+            onLanguageChange: params.onLanguageChange
         };
     }
 
@@ -64,7 +68,33 @@ export class I18nTranslationService implements ITranslationService {
             console.warn(`Missing key in ${lng}/${ns}: ${key}`);
         });
 
+        this.i18nInstance.on('languageChanged', (lng: string) => {
+            console.log("Language changed to:", lng);
+
+            if (this.params.onLanguageChange) {
+                this.params.onLanguageChange(lng);
+            }
+        });
+
         this.initialized = true;
+    }
+
+    getCurrentLanguage(): string {
+        if (!this.initialized) {
+            throw Error("I18nTranslationService not initialized");
+        }
+
+        return this.i18nInstance.language;
+    }
+
+    async changeLanguage(lng: string): Promise<void> {
+        if (!this.initialized) {
+            throw Error("I18nTranslationService not initialized");
+        }
+
+        this.i18nInstance.changeLanguage(lng)
+            .then(() => console.log("Language changed to:", lng))
+            .catch((e) => console.error("Error changing language:", e));
     }
 
     get(key: string, count?: number): string {
