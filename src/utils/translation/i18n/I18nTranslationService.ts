@@ -3,11 +3,14 @@ import {initReactI18next} from 'react-i18next';
 import {en} from './locales/en/en'
 import {fr} from './locales/fr/fr';
 import {ITranslationService} from "../ITranslationService";
-import {EN, FR} from "../locales";
-import {Translations} from "../types";
+import {EN} from "../locales";
 
-export interface I18nParams {
-    translations?: Translations;
+export type I18nTranslationRecord = {
+    translation: Record<string, string>;
+}
+
+export interface I18nServiceParams {
+    translations?: Record<string, I18nTranslationRecord>;
     lng?: string;
     fallbackLng?: string;
     interpolation?: {
@@ -18,11 +21,11 @@ export interface I18nParams {
 
 export class I18nTranslationService implements ITranslationService {
 
-    private params: I18nParams;
+    private params: I18nServiceParams;
     private initialized = false;
     private i18nInstance!: typeof i18n;
 
-    constructor(params: I18nParams = {}) {
+    constructor(params: I18nServiceParams = {}) {
         this.params = {
             translations: params.translations || I18nTranslationService.DEFAULT_TRANSLATIONS,
             lng: params.lng || EN,
@@ -36,6 +39,7 @@ export class I18nTranslationService implements ITranslationService {
 
     async init() {
         if (this.initialized) {
+            console.warn("I18nTranslationService already initialized, no need to call init() again");
             return;
         }
 
@@ -68,7 +72,6 @@ export class I18nTranslationService implements ITranslationService {
             throw Error("I18nTranslationService not initialized");
         }
 
-        // Debugging: log translation key and result
         console.log("Fetching translation for key:", key);
         const result = this.i18nInstance.t(key, {count});
         console.log("Translation result:", result);
@@ -76,7 +79,7 @@ export class I18nTranslationService implements ITranslationService {
         return result;
     }
 
-    static readonly DEFAULT_TRANSLATIONS: Translations = {
+    static readonly DEFAULT_TRANSLATIONS: Record<string, I18nTranslationRecord> = {
         en: en,
         fr: fr
     };

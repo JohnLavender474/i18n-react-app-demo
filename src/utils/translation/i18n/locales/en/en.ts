@@ -1,7 +1,7 @@
 import {HELLO_USER_KEY, PLURAL_NOTIFICATIONS_KEY, REACT_WELCOME_KEY, SINGLE_NOTIFICATION_KEY} from "../../../keys";
-import {TranslationRecord} from "../../../types";
+import {I18nTranslationRecord} from "../../I18nTranslationService";
 
-export const en: TranslationRecord = {
+export const en: I18nTranslationRecord = {
     translation: {
         [HELLO_USER_KEY]: "Hello, <1>user</1>. <3>Test</3>",
         [REACT_WELCOME_KEY]: "Welcome to React and react-i18next",
