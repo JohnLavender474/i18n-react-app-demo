@@ -1,0 +1,9 @@
+{
+  "header": {
+    "welcome": "Bienvenue sur React et react-i18next"
+  },
+  "notifications": {
+    "single": "Vous avez 1 notification",
+    "plural": "Vous avez {{count}} notifications"
+  }
+}

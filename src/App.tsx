@@ -2,58 +2,50 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import logo from './logo.svg';
 import {I18nTranslationService} from "./utils/translation/i18n/I18nTranslationService";
-import {PLURAL_NOTIFICATIONS_KEY, REACT_WELCOME_KEY, SINGLE_NOTIFICATION_KEY} from "./utils/translation/keys";
-import {EN, FR} from "./utils/translation/locales";
+import en from '../public/locales/en/translation.json';
+import fr from '../public/locales/fr/translation.json';
 
-const DEBUG_TRANSLATION = true;
+const i18nService = new I18nTranslationService({
+    translations: {
+        en: {
+            translation: en
+        },
+        fr: {
+            translation: fr
+        }
+    },
+    lng: 'en',
+    fallbackLng: 'en',
+    debug: true,
+    interpolation: {
+        escapeValue: false
+    },
+});
 
 function App() {
-    const [translationService, setTranslationService] = useState<I18nTranslationService | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (translationService) {
-            return;
-        }
-
-        const initializeService = async () => {
-            const service = new I18nTranslationService({
-                debug: DEBUG_TRANSLATION,
-                lng: FR
-            });
-            await service.init();
-            setTranslationService(service);
-            return service;
-        };
 
         setLoading(true);
-        initializeService()
+        i18nService.init()
             .then((service) => {
-                console.log("Service initialized", service);
+                console.log("The i18n service is initialized:", service);
                 setLoading(false);
             })
             .catch((e) => {
-                console.error(e);
+                console.error("Error initializing i18n service:", e);
                 setLoading(false);
             });
     }, []);
 
     const getCurrentLanguage = (): string | null => {
-        if (!translationService) {
-            return null;
-        }
-
-        return translationService.getCurrentLanguage();
+        return i18nService.getCurrentLanguage();
     }
 
     const handleLanguageChange = async (lng: string) => {
-        if (!translationService) {
-            console.error("Translation service not initialized");
-            return;
-        }
-
         setLoading(true);
-        await translationService.changeLanguage(lng);
+        await i18nService.changeLanguage(lng);
         setLoading(false);
     };
     const renderChangeLngButtons = () => {
@@ -65,14 +57,16 @@ function App() {
         let newLng = "ERROR: NO LANGUAGE SET";
         let text = "ERROR: NO BUTTON TEXT SET";
         switch (currentLng) {
-            case EN:
-                newLng = FR;
+            case "en":
+                newLng = "fr";
                 text = "Change to French";
                 break;
-            case FR:
-                newLng = EN;
+            case "fr":
+                newLng = "en";
                 text = "Changez en anglais";
                 break;
+            default:
+                throw new Error(`Unsupported language: ${currentLng}`);
         }
 
         return (
@@ -82,10 +76,6 @@ function App() {
 
     if (loading) {
         return <div>Loading...</div>;
-    }
-
-    if (!translationService) {
-        return <div><h1>Error initializing translation service</h1></div>;
     }
 
     return (
@@ -98,13 +88,13 @@ function App() {
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    {translationService.get(REACT_WELCOME_KEY)}
+                    {i18nService.get("header.welcome")}
                 </a>
                 <p>
-                    {translationService.get(SINGLE_NOTIFICATION_KEY)}
+                    {i18nService.get("notifications.single")}
                 </p>
                 <p>
-                    {translationService.get(PLURAL_NOTIFICATIONS_KEY, 5)}
+                    {i18nService.get("notifications.plural", {count: 5})}
                 </p>
                 <div>
                     {renderChangeLngButtons()}

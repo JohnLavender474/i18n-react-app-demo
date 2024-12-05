@@ -1,4 +1,4 @@
 export interface ITranslationService {
 
-    get(key: string, count?: number): string;
+    get(key: string, config?: any): string;
 }

@@ -1,16 +1,9 @@
 import i18n, {InitOptions} from 'i18next';
 import {initReactI18next} from 'react-i18next';
-import {en} from './locales/en/en'
-import {fr} from './locales/fr/fr';
 import {ITranslationService} from "../ITranslationService";
-import {EN} from "../locales";
-
-export type I18nTranslationRecord = {
-    translation: Record<string, string>;
-}
 
 export interface I18nServiceParams {
-    translations?: Record<string, I18nTranslationRecord>;
+    translations: any,
     lng?: string;
     fallbackLng?: string;
     interpolation?: {
@@ -21,24 +14,18 @@ export interface I18nServiceParams {
     onLanguageChange?: (lng: string) => void;
 }
 
+export interface I18nGetConfig {
+    count?: number;
+}
+
 export class I18nTranslationService implements ITranslationService {
 
     private params: I18nServiceParams;
     private initialized = false;
     private i18nInstance!: typeof i18n;
 
-    constructor(params: I18nServiceParams = {}) {
-        this.params = {
-            translations: params.translations || I18nTranslationService.DEFAULT_TRANSLATIONS,
-            lng: params.lng || EN,
-            fallbackLng: params.fallbackLng || EN,
-            interpolation: params.interpolation || {
-                escapeValue: false
-            },
-            debug: params.debug ?? false,
-            changeLanguage: params.changeLanguage,
-            onLanguageChange: params.onLanguageChange
-        };
+    constructor(params: I18nServiceParams) {
+        this.params = params;
     }
 
     async init() {
@@ -97,20 +84,22 @@ export class I18nTranslationService implements ITranslationService {
             .catch((e) => console.error("Error changing language:", e));
     }
 
-    get(key: string, count?: number): string {
+    get(key: string, config?: I18nGetConfig): string {
         if (!this.initialized) {
             throw Error("I18nTranslationService not initialized");
         }
 
         console.log("Fetching translation for key:", key);
-        const result = this.i18nInstance.t(key, {count});
+
+        let result: string;
+        if (config && config.count) {
+            result = this.i18nInstance.t(key, {count: config.count});
+        } else {
+            result = this.i18nInstance.t(key);
+        }
+
         console.log("Translation result:", result);
 
         return result;
     }
-
-    static readonly DEFAULT_TRANSLATIONS: Record<string, I18nTranslationRecord> = {
-        en: en,
-        fr: fr
-    };
 }

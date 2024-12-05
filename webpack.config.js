@@ -7,8 +7,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js'
     },
-    resolve:
-    {
+    resolve: {
         extensions: ['.tsx', '.ts', '.js'],
     },
     module: {
@@ -28,12 +27,16 @@ module.exports = {
             {
                 test: /\.svg$/,
                 use: "file-loader",
-            }
+            },
+            {
+                test: /\.json$/,
+                type: 'json',
+            },
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html'
-        })
+        }),
     ]
 }
