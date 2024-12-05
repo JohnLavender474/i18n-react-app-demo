@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import logo from './logo.svg';
 import './App.css';
+import logo from './logo.svg';
 import {I18nTranslationService} from "./utils/translation/i18n/I18nTranslationService";
 import {PLURAL_NOTIFICATIONS_KEY, REACT_WELCOME_KEY, SINGLE_NOTIFICATION_KEY} from "./utils/translation/keys";
 import {EN, FR} from "./utils/translation/locales";
