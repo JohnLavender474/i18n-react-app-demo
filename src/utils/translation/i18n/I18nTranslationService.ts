@@ -1,9 +1,9 @@
-import i18n, {InitOptions} from 'i18next';
+import i18n, {InitOptions, Resource} from 'i18next';
 import {initReactI18next} from 'react-i18next';
 import {ITranslationService} from "../ITranslationService";
 
 export interface I18nServiceParams {
-    translations: any,
+    translations: Resource,
     lng?: string;
     fallbackLng?: string;
     interpolation?: {
